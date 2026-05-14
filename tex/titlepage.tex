@@ -1,0 +1,75 @@
+\usepackage{etoolbox}
+\usepackage{fancyhdr}
+\usepackage{fontspec}
+\usepackage{titlesec}
+
+% Fraunces — used for all headings and the title page.
+% Fonts are installed in the container at /usr/share/fonts/custom/ by the Dockerfile.
+\newfontfamily\Fraunces{Fraunces_72pt-Regular}[
+  Extension=.ttf,
+  Path=/usr/share/fonts/custom/,
+  BoldFont=Fraunces_72pt-Bold,
+  ItalicFont=Fraunces_72pt-Italic,
+  BoldItalicFont=Fraunces_72pt-BoldItalic
+]
+
+% Scale: 12 → 15 → 18 → 24 → 30
+% Ratios: major third (×1.25) and perfect fourth (×1.333) steps.
+%
+% H1–H3: Fraunces Bold, size is the only differentiator.
+% H4: Fraunces Bold at body size — weight vs Liberation Sans Regular is the differentiator.
+%     Bold (not SemiBold) chosen because Fraunces _72pt has high-contrast hairlines
+%     that render poorly at small sizes in lighter weights.
+
+\titleformat{\section}
+  {\Fraunces\bfseries\fontsize{24}{29}\selectfont}
+  {\thesection}{1em}{}
+\titlespacing*{\section}{0pt}{3ex plus .5ex minus .2ex}{1ex}
+
+\titleformat{\subsection}
+  {\Fraunces\bfseries\fontsize{18}{22}\selectfont}
+  {\thesubsection}{1em}{}
+\titlespacing*{\subsection}{0pt}{2.5ex plus .4ex minus .2ex}{0.8ex}
+
+\titleformat{\subsubsection}
+  {\Fraunces\bfseries\fontsize{15}{19}\selectfont}
+  {\thesubsubsection}{1em}{}
+\titlespacing*{\subsubsection}{0pt}{2ex plus .3ex minus .2ex}{0.5ex}
+
+\titleformat{\paragraph}[block]
+  {\Fraunces\bfseries\fontsize{12}{15}\selectfont}
+  {\theparagraph}{0em}{}
+\titlespacing*{\paragraph}{0pt}{1.5ex plus .2ex minus .2ex}{0.3ex}
+
+% Header: Liberation Sans (UI chrome, not a heading — display serif would feel wrong here).
+% Shows current H1 text on the left with a horizontal rule.
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\sectionmark}[1]{\markboth{#1}{}}
+\fancyhead[L]{\leftmark}
+\renewcommand{\headrulewidth}{0.4pt}
+\fancyfoot[R]{\thepage}
+\renewcommand{\footrulewidth}{0.4pt}
+
+% Title page: Fraunces Bold title, left-aligned, no header.
+% Author/date stay in Liberation Sans — they are metadata, not headings.
+\makeatletter
+\renewcommand{\maketitle}{%
+  \thispagestyle{empty}%
+  \begin{flushleft}
+    {\fontsize{30}{36}\Fraunces\bfseries\selectfont\@title}\\[1em]
+    \ifx\@author\@empty\else{\large\@author}\\[0.5em]\fi
+    \ifx\@date\@empty\else{\large\@date}\fi
+  \end{flushleft}%
+}
+\makeatother
+\apptocmd{\maketitle}{\clearpage}{}{}
+
+% TOC: plain style (no fancy header), restore fancy after
+\let\oldtableofcontents\tableofcontents
+\renewcommand{\tableofcontents}{%
+  \pagestyle{plain}%
+  \oldtableofcontents%
+  \clearpage%
+  \pagestyle{fancy}%
+}

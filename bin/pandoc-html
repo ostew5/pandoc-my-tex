@@ -1,0 +1,64 @@
+#!/usr/bin/env bash
+# pandoc-html — Convert Markdown to standalone HTML (MathJax + code blocks)
+# Usage: pandoc-html INPUT.md [-o OUTPUT.html] [PANDOC_OPTIONS...]
+#
+# Output defaults to INPUT_BASENAME.html in the current working directory.
+# Run `make install` in the repo to symlink this into ~/.local/bin.
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "$(realpath "${BASH_SOURCE[0]}")")" && pwd)"
+REPO_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
+IMAGE="pandoc-my-tex"
+
+if [[ $# -eq 0 || "$1" == "-h" || "$1" == "--help" ]]; then
+  echo "Usage: pandoc-html INPUT.md [-o OUTPUT.html] [PANDOC_OPTIONS...]"
+  echo "Output defaults to INPUT_BASENAME.html in the current working directory."
+  exit 0
+fi
+
+INPUT_ABS="$(realpath "$1")"
+INPUT_DIR="$(dirname "$INPUT_ABS")"
+INPUT_FILE="$(basename "$INPUT_ABS")"
+shift
+
+CWD="$(pwd)"
+
+# Mount input separately only if it lives outside cwd
+EXTRA_VOLUMES=()
+if [[ "$INPUT_DIR" == "$CWD"* ]]; then
+  CONTAINER_INPUT="/work/${INPUT_ABS#$CWD/}"
+else
+  EXTRA_VOLUMES+=(-v "${INPUT_DIR}:/input:ro")
+  CONTAINER_INPUT="/input/${INPUT_FILE}"
+fi
+
+# Default output goes to cwd
+DEFAULT_OUTPUT="/work/${INPUT_FILE%.*}.html"
+
+# Pass-through: detect if caller already specified -o / --output
+HAS_OUTPUT=false
+for arg in "$@"; do
+  case "$arg" in
+    -o|--output|--output=*) HAS_OUTPUT=true; break ;;
+  esac
+done
+
+PASSTHROUGH=("$@")
+if ! $HAS_OUTPUT; then
+  PASSTHROUGH+=("--output=${DEFAULT_OUTPUT}")
+fi
+
+docker run --rm \
+  -v "${REPO_DIR}:/repo:ro" \
+  -v "${CWD}:/work" \
+  "${EXTRA_VOLUMES[@]}" \
+  -w /work \
+  "${IMAGE}" \
+  --metadata-file=/repo/shared-meta.yaml \
+  --to=html5 \
+  --standalone \
+  --mathjax \
+  --syntax-highlighting=tango \
+  "${PASSTHROUGH[@]}" \
+  "${CONTAINER_INPUT}"

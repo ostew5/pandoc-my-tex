@@ -1,0 +1,16 @@
+# PDF/LaTeX-only settings — merged on top of shared-meta.yaml for PDF builds only.
+
+documentclass: article
+geometry: "margin=2.5cm"
+colorlinks: true
+linkcolor: blue
+urlcolor: blue
+citecolor: blue
+
+toc: true
+toc-depth: 3
+
+# Uncomment for better math font control with xelatex:
+# header-includes:
+#   - \usepackage{unicode-math}
+#   - \setmathfont{Latin Modern Math}

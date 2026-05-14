@@ -1,0 +1,9 @@
+out/
+
+# Proprietary fonts — drop your Arial TTFs here but don't commit them
+fonts/*.ttf
+fonts/*.otf
+fonts/*.TTF
+fonts/*.OTF
+fonts/*.woff
+fonts/*.woff2

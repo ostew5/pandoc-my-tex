@@ -1,0 +1,13 @@
+# Metadata applied to both PDF and HTML builds.
+# LaTeX-only variables (mainfont, fontsize, etc.) are silently ignored by HTML output.
+
+lang: en
+
+# Font settings — used by xelatex via fontspec.
+# Liberation Sans is metric-identical to Arial (installed automatically via apk).
+# To use real Arial: drop Arial.ttf etc. into fonts/, rebuild, then change these to "Arial".
+mainfont: "Liberation Sans"
+sansfont: "Liberation Sans"
+monofont: "Liberation Mono"
+
+fontsize: 12pt

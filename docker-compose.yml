@@ -1,0 +1,30 @@
+services:
+  pdf:
+    build: .
+    image: pandoc-my-tex
+    volumes:
+      - .:/data
+    working_dir: /data
+    command: >
+      --metadata-file=shared-meta.yaml
+      --metadata-file=pdf-meta.yaml
+      --include-in-header=tex/titlepage.tex
+      --pdf-engine=xelatex
+      --syntax-highlighting=tango
+      --output=out/example.pdf
+      src/example.md
+
+  html:
+    build: .
+    image: pandoc-my-tex
+    volumes:
+      - .:/data
+    working_dir: /data
+    command: >
+      --metadata-file=shared-meta.yaml
+      --to=html5
+      --standalone
+      --mathjax
+      --syntax-highlighting=tango
+      --output=out/example.html
+      src/example.md
