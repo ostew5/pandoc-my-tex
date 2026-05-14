@@ -1,16 +1,14 @@
 # PDF/LaTeX-only settings — merged on top of shared-meta.yaml for PDF builds only.
 
 documentclass: article
-geometry: "margin=2.5cm"
+
+# US Letter, asymmetric margins. Wider left margin = quiet channel for breathing room.
+# Switch paper=a4paper and scale margins proportionally for non-North-America audiences.
+geometry: "top=0.9in, bottom=1in, right=1in, left=1.25in, paper=letterpaper"
+
+# colorlinks=true keeps hyperref using coloured text (no boxes).
+# Specific colours are set in titlepage.tex via \AtBeginDocument{\hypersetup{...}}.
 colorlinks: true
-linkcolor: blue
-urlcolor: blue
-citecolor: blue
 
 toc: true
 toc-depth: 3
-
-# Uncomment for better math font control with xelatex:
-# header-includes:
-#   - \usepackage{unicode-math}
-#   - \setmathfont{Latin Modern Math}

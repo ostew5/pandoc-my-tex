@@ -4,10 +4,8 @@
 lang: en
 
 # Font settings — used by xelatex via fontspec.
-# Liberation Sans is metric-identical to Arial (installed automatically via apk).
-# To use real Arial: drop Arial.ttf etc. into fonts/, rebuild, then change these to "Arial".
-mainfont: "Liberation Sans"
-sansfont: "Liberation Sans"
+# titlepage.tex overrides mainfont with Inter (loaded by file path) for PDF builds.
+# Liberation Sans is kept here as a safe fallback if the override fails.
 monofont: "Liberation Mono"
 
-fontsize: 12pt
+fontsize: 10pt

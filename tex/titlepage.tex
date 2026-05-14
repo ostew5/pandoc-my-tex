@@ -2,74 +2,174 @@
 \usepackage{fancyhdr}
 \usepackage{fontspec}
 \usepackage{titlesec}
+\usepackage{xcolor}
+\usepackage{ragged2e}
+\usepackage{caption}
+\usepackage{colortbl}
 
-% Fraunces — used for all headings and the title page.
-% Fonts are installed in the container at /usr/share/fonts/custom/ by the Dockerfile.
-\newfontfamily\Fraunces{Fraunces_72pt-Regular}[
+%% ── Colour palette ───────────────────────────────────────────────────────────
+\definecolor{textprimary}{HTML}{1C1B19}    % off-black — body text
+\definecolor{textsecondary}{HTML}{6B645C}  % warm mid-grey — captions, footer, metadata
+\definecolor{hairline}{HTML}{E5E2DC}       % very light warm grey — table rules, dividers
+\definecolor{accent}{HTML}{C89A3A}         % muted ochre — one accent per page, no more
+
+%% ── Fonts ────────────────────────────────────────────────────────────────────
+% Inter — set via \AtEndPreamble so it runs after pandoc's own \setmainfont call
+% (which comes from shared-meta.yaml and would otherwise override us).
+% BoldFont mapped to SemiBold (600) so \bfseries produces weight-600, not 700.
+\AtEndPreamble{%
+  \setmainfont{Inter_18pt-Regular}[%
+    Extension=.ttf,%
+    Path=/usr/share/fonts/custom/,%
+    BoldFont=Inter_18pt-SemiBold,%
+    ItalicFont=Inter_18pt-Italic,%
+    BoldItalicFont=Inter_18pt-SemiBoldItalic%
+  ]%
+}
+
+% Medium (500) — for eyebrow / label text (\eyebrow{}).
+\newfontface\InterMedium{Inter_18pt-Medium}[
   Extension=.ttf,
-  Path=/usr/share/fonts/custom/,
-  BoldFont=Fraunces_72pt-Bold,
-  ItalicFont=Fraunces_72pt-Italic,
-  BoldItalicFont=Fraunces_72pt-BoldItalic
+  Path=/usr/share/fonts/custom/
+]
+% Fraunces Bold — second typeface, restricted to the report title only.
+\newfontfamily\FrauncesTitle{Fraunces_72pt-Bold}[
+  Extension=.ttf,
+  Path=/usr/share/fonts/custom/
 ]
 
-% Scale: 12 → 15 → 18 → 24 → 30
-% Ratios: major third (×1.25) and perfect fourth (×1.333) steps.
-%
-% H1–H3: Fraunces Bold, size is the only differentiator.
-% H4: Fraunces Bold at body size — weight vs Liberation Sans Regular is the differentiator.
-%     Bold (not SemiBold) chosen because Fraunces _72pt has high-contrast hairlines
-%     that render poorly at small sizes in lighter weights.
+%% ── Body: 10.5pt / 1.55 line-height (16.3pt) ────────────────────────────────
+% Redefine \normalsize so all derived sizes (list spacing, display math) scale correctly.
+\makeatletter
+\renewcommand\normalsize{%
+  \@setfontsize\normalsize{10.5pt}{16.3pt}%
+  \abovedisplayskip 10.5\p@ \@plus2\p@ \@minus5\p@
+  \abovedisplayshortskip \z@ \@plus3\p@
+  \belowdisplayshortskip 6.5\p@ \@plus3.5\p@ \@minus3\p@
+  \belowdisplayskip \abovedisplayskip
+  \let\@listi\@listI}
+\makeatother
+\AtBeginDocument{\normalsize}
 
+%% ── Global text colour ───────────────────────────────────────────────────────
+\AtBeginDocument{\color{textprimary}}
+
+%% ── Never justified ──────────────────────────────────────────────────────────
+% Spec: "never justified — left-aligned, ragged right"
+\AtBeginDocument{\RaggedRight}
+
+%% ── Headings ─────────────────────────────────────────────────────────────────
+% Inter SemiBold (600) throughout — hierarchy from size and whitespace only.
+% "A heading earns its place by the silence around it."
+
+% H1 — 18pt, 32–40pt above (36pt), 8pt below
 \titleformat{\section}
-  {\Fraunces\bfseries\fontsize{24}{29}\selectfont}
+  {\fontsize{18}{22}\selectfont\bfseries}
   {\thesection}{1em}{}
-\titlespacing*{\section}{0pt}{3ex plus .5ex minus .2ex}{1ex}
+\titlespacing*{\section}{0pt}{36pt plus 4pt minus 2pt}{8pt}
 
+% H2 — 13pt
 \titleformat{\subsection}
-  {\Fraunces\bfseries\fontsize{18}{22}\selectfont}
+  {\fontsize{13}{17}\selectfont\bfseries}
   {\thesubsection}{1em}{}
-\titlespacing*{\subsection}{0pt}{2.5ex plus .4ex minus .2ex}{0.8ex}
+\titlespacing*{\subsection}{0pt}{24pt plus 3pt minus 2pt}{6pt}
 
+% H3 — 11pt (not in the original spec; derived as the next step down)
 \titleformat{\subsubsection}
-  {\Fraunces\bfseries\fontsize{15}{19}\selectfont}
+  {\fontsize{11}{14}\selectfont\bfseries}
   {\thesubsubsection}{1em}{}
-\titlespacing*{\subsubsection}{0pt}{2ex plus .3ex minus .2ex}{0.5ex}
+\titlespacing*{\subsubsection}{0pt}{16pt plus 2pt minus 1pt}{4pt}
 
+% H4 — body size, weight is the only differentiator
 \titleformat{\paragraph}[block]
-  {\Fraunces\bfseries\fontsize{12}{15}\selectfont}
+  {\fontsize{10.5}{14}\selectfont\bfseries}
   {\theparagraph}{0em}{}
-\titlespacing*{\paragraph}{0pt}{1.5ex plus .2ex minus .2ex}{0.3ex}
+\titlespacing*{\paragraph}{0pt}{12pt plus 2pt minus 1pt}{2pt}
 
-% Header: Liberation Sans (UI chrome, not a heading — display serif would feel wrong here).
-% Shows current H1 text on the left with a horizontal rule.
+%% ── Captions: 8.5pt, secondary colour ───────────────────────────────────────
+\DeclareCaptionFont{captiontext}{\fontsize{8.5}{11}\selectfont\color{textsecondary}}
+\captionsetup{font=captiontext, labelfont=captiontext, labelsep=period}
+
+%% ── Table rules: hairline colour, no vertical rules ─────────────────────────
+% colortbl colours all horizontal rules (booktabs toprule/midrule/bottomrule).
+% Spec: no vertical rules ever; only hairline horizontals where genuinely needed.
+\AtBeginDocument{\arrayrulecolor{hairline}}
+% Slim the booktabs rule weights to match the hairline aesthetic.
+\setlength{\heavyrulewidth}{0.4pt}
+\setlength{\lightrulewidth}{0.3pt}
+\setlength{\cmidrulewidth}{0.3pt}
+
+%% ── Eyebrow / label helper ───────────────────────────────────────────────────
+% Usage: \eyebrow{Section Label}
+% 8pt, weight 500, uppercase, +0.15em tracking. Use sparingly.
+\newcommand{\eyebrow}[1]{%
+  {\fontsize{8}{10}\selectfont\InterMedium
+   \addfontfeatures{LetterSpace=150}%  +0.15em
+   \color{textsecondary}\MakeUppercase{#1}}%
+}
+
+%% ── Links ────────────────────────────────────────────────────────────────────
+% linkcolor = off-black (TOC + cross-refs blend with body text)
+% urlcolor  = accent (the one place an ochre touch is appropriate)
+\AtBeginDocument{%
+  \hypersetup{
+    linkcolor=textprimary,
+    urlcolor=accent,
+    citecolor=textprimary
+  }%
+}
+
+%% ── Page furniture: footer only ──────────────────────────────────────────────
+% Spec: "no header rule, no running banner, no logo on every page."
+% Page number outer (right), report identifier inner (left), both 8pt secondary.
 \pagestyle{fancy}
 \fancyhf{}
-\renewcommand{\sectionmark}[1]{\markboth{#1}{}}
-\fancyhead[L]{\leftmark}
-\renewcommand{\headrulewidth}{0.4pt}
-\fancyfoot[R]{\thepage}
-\renewcommand{\footrulewidth}{0.4pt}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+\fancyfoot[R]{\fontsize{8}{10}\selectfont\color{textsecondary}\thepage}
+\fancyfoot[L]{\fontsize{8}{10}\selectfont\color{textsecondary}\reportident}
 
-% Title page: Fraunces Bold title, left-aligned, no header.
-% Author/date stay in Liberation Sans — they are metadata, not headings.
+% Mirror footer on pages that get \thispagestyle{plain} (first page of sections, TOC).
+\fancypagestyle{plain}{%
+  \fancyhf{}%
+  \renewcommand{\headrulewidth}{0pt}%
+  \renewcommand{\footrulewidth}{0pt}%
+  \fancyfoot[R]{\fontsize{8}{10}\selectfont\color{textsecondary}\thepage}%
+  \fancyfoot[L]{\fontsize{8}{10}\selectfont\color{textsecondary}\reportident}%
+}
+
+% \reportident — set this in your document's YAML or before \begin{document}.
+% Example: add  header-includes: - \renewcommand{\reportident}{Q2 2026}  to your YAML.
+\newcommand{\reportident}{}
+
+%% ── Title page ───────────────────────────────────────────────────────────────
+% Fraunces Bold — the only use of the second typeface in this design.
+% 32pt, −0.02em tracking (LetterSpace=−20), line-height 1.1.
 \makeatletter
 \renewcommand{\maketitle}{%
   \thispagestyle{empty}%
   \begin{flushleft}
-    {\fontsize{30}{36}\Fraunces\bfseries\selectfont\@title}\\[1em]
-    \ifx\@author\@empty\else{\large\@author}\\[0.5em]\fi
-    \ifx\@date\@empty\else{\large\@date}\fi
+    {%
+      \FrauncesTitle
+      \fontsize{32}{35.2}\selectfont
+      \addfontfeatures{LetterSpace=-20}%
+      \@title
+    }\\[1.4em]
+    \ifx\@author\@empty\else
+      {\fontsize{10.5}{16.3}\selectfont\color{textsecondary}\@author}\\[0.4em]%
+    \fi
+    \ifx\@date\@empty\else
+      {\fontsize{10.5}{16.3}\selectfont\color{textsecondary}\@date}%
+    \fi
   \end{flushleft}%
 }
 \makeatother
 \apptocmd{\maketitle}{\clearpage}{}{}
 
-% TOC: plain style (no fancy header), restore fancy after
+%% ── Table of contents ────────────────────────────────────────────────────────
 \let\oldtableofcontents\tableofcontents
 \renewcommand{\tableofcontents}{%
-  \pagestyle{plain}%
+  \pagestyle{fancy}%
   \oldtableofcontents%
   \clearpage%
-  \pagestyle{fancy}%
 }
