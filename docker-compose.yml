@@ -9,6 +9,7 @@ services:
       --metadata-file=shared-meta.yaml
       --metadata-file=pdf-meta.yaml
       --include-in-header=tex/titlepage.tex
+      --lua-filter=bin/mermaid-filter.lua
       --pdf-engine=xelatex
       --syntax-highlighting=tango
       --output=out/example.pdf

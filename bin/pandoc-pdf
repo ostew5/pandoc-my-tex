@@ -59,6 +59,7 @@ docker run --rm \
   --metadata-file=/repo/shared-meta.yaml \
   --metadata-file=/repo/pdf-meta.yaml \
   --include-in-header=/repo/tex/titlepage.tex \
+  --lua-filter=/repo/bin/mermaid-filter.lua \
   --pdf-engine=xelatex \
   --syntax-highlighting=tango \
   "${PASSTHROUGH[@]}" \
