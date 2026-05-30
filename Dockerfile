@@ -13,7 +13,7 @@ FROM pandoc/extra:latest
 RUN apk add --no-cache fontconfig font-liberation
 
 # Extra TeX packages not bundled in pandoc/extra.
-RUN tlmgr install ragged2e
+RUN tlmgr install ragged2e pdflscape
 
 # Mermaid diagram support: system Chromium + mermaid-cli (mmdc).
 # PUPPETEER_SKIP_CHROMIUM_DOWNLOAD tells mmdc's bundled Puppeteer not to
